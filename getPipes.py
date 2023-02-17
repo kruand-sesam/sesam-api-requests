@@ -41,6 +41,7 @@ except AttributeError as e:
 except Exception as e:
     logger.exception(f'Exception  on {url} - HTTP code {r.status_code} - {str(e)}')
 
+"""
 jq = f'jq ".[] | select(.config.original.source.alternatives.prod.dataset == \\"kafka-ni-ifs-equipmentfunctional-raw\\")? | ._id" {tmpFile}.json'
 process = subprocess.Popen(jq, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,text=True)
 
@@ -50,6 +51,7 @@ pipesIfs = list(set(pipesIfs)) # Keep only unique values by using set()
 pipesIfs = list(filter(None, pipesIfs))  # Remove empty list elements
 pipesIfs.sort()
 pipesIfs.insert(0, "kafka-ni-ifs-equipmentfunctional-raw")
+"""
 
 jq = f'jq ".[] |  select(._id | startswith(\\"kafka-ni-arcgisun\\")) | ._id" tmp/pipes.json'
 process = subprocess.Popen(jq, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,text=True)
@@ -69,7 +71,7 @@ pipesArcGISUN = list(set(pipesArcGISUN)) # Keep only unique values by using set(
 pipesArcGISUN = list(filter(None, pipesArcGISUN))  # Remove empty list elements
 pipesArcGISUN.sort()
 
-pipes = pipesIfs + pipesKafkaUN + pipesArcGISUN
+pipes = pipesKafkaUN + pipesArcGISUN
 
 with open(tmpFile + ".txt", "w") as jsonOut:
     jsonOut.write('\n'.join(pipes))
