@@ -41,13 +41,35 @@ except AttributeError as e:
 except Exception as e:
     logger.exception(f'Exception  on {url} - HTTP code {r.status_code} - {str(e)}')
 
-jq = f'jq ".[] | select((.config.effective.metadata.tags[] == \\"ArcGIS-UN\\"))? | ._id" {tmpFile}.json'
+jq = f'jq ".[] | select(.config.original.source.alternatives.prod.dataset == \\"kafka-ni-ifs-equipmentfunctional-raw\\")? | ._id" {tmpFile}.json'
 process = subprocess.Popen(jq, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,text=True)
 
-pipes = process.stdout.read()
-pipes = pipes.replace('"', "").split("\n") # Create python list from each line, remove quotes
-pipes = list(set(pipes)) # Keep only unique values by using set()
-pipes = list(filter(None, pipes))  # Remove empty list elements
-pipes.sort()
+pipesIfs = process.stdout.read()
+pipesIfs = pipesIfs.replace('"', "").split("\n") # Create python list from each line, remove quotes
+pipesIfs = list(set(pipesIfs)) # Keep only unique values by using set()
+pipesIfs = list(filter(None, pipesIfs))  # Remove empty list elements
+pipesIfs.sort()
+pipesIfs.insert(0, "kafka-ni-ifs-equipmentfunctional-raw")
+
+jq = f'jq ".[] |  select(._id | startswith(\\"kafka-ni-arcgisun\\")) | ._id" tmp/pipes.json'
+process = subprocess.Popen(jq, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,text=True)
+
+pipesKafkaUN = process.stdout.read()
+pipesKafkaUN = pipesKafkaUN.replace('"', "").split("\n") # Create python list from each line, remove quotes
+pipesKafkaUN = list(set(pipesKafkaUN)) # Keep only unique values by using set()
+pipesKafkaUN = list(filter(None, pipesKafkaUN))  # Remove empty list elements
+pipesKafkaUN.sort()
+
+jq = 'jq ".[] | select([.config.effective.metadata.tags[] == \\"ArcGIS-UN\\"]? | any) | ._id" tmp/pipes.json'
+process = subprocess.Popen(jq, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,text=True)
+
+pipesArcGISUN = process.stdout.read()
+pipesArcGISUN = pipesArcGISUN.replace('"', "").split("\n") # Create python list from each line, remove quotes
+pipesArcGISUN = list(set(pipesArcGISUN)) # Keep only unique values by using set()
+pipesArcGISUN = list(filter(None, pipesArcGISUN))  # Remove empty list elements
+pipesArcGISUN.sort()
+
+pipes = pipesIfs + pipesKafkaUN + pipesArcGISUN
+
 with open(tmpFile + ".txt", "w") as jsonOut:
     jsonOut.write('\n'.join(pipes))
