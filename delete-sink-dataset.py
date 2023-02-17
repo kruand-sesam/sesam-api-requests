@@ -23,14 +23,17 @@ headers = {
   'Authorization': f'Bearer {CONFIG["jwt"]}'
 }
 pipes = []
-with open("pipes.txt", "r") as jsonOut:
-  pipes = jsonOut.read()
-  pipes = pipes.split("\n") # Create python list from each line, remove quotes
-  pipes = list(filter(None, pipes))  # Remove empty list elements
+tmpFile = os.path.join("tmp", "pipes.txt")
+with open(tmpFile, "r") as f:
+  
+  while True:
+    line = f.readline().replace("\n", "")
+    if not line:
+      break
+    pipes.append(line)
 
 for pipe in pipes:
-  print("Press anything to process:" + pipe)
-  #input()
+  print("Deleting Sink Dataset for: " + pipe)  
   response = requests.request("DELETE", f'{url}{pipe}', headers=headers, data=payload)
-  print(response)
+  print(response.text)
   time.sleep(2)
