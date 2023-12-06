@@ -21,7 +21,7 @@ tmpFile = os.path.join("tmp", "pipes")
 url = "/api/pipes?verbose=false&fields=config&include-internal-pipes=false"
 headers = requests.structures.CaseInsensitiveDict()
 headers["Authorization"] = "Bearer " + CONFIG["jwt"]
-url = CONFIG["node"] + url
+url = "https://" + CONFIG["node"] + url
 logger.info(f'Getting all pipe names for ArcGIS UN globals from URL:  {url}')
 pipes = ""
 try:
@@ -62,7 +62,7 @@ pipesKafkaUN = list(set(pipesKafkaUN)) # Keep only unique values by using set()
 pipesKafkaUN = list(filter(None, pipesKafkaUN))  # Remove empty list elements
 pipesKafkaUN.sort()
 
-jq = 'jq ".[] | select([.config.effective.metadata.tags[] == \\"ArcGIS-UN\\"]? | any) | ._id" tmp/pipes.json'
+jq = 'jq ".[] | select([.config.effective.metadata.tags[] == \\"arcgis-un\\"]? | any) | ._id" tmp/pipes.json'
 process = subprocess.Popen(jq, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,text=True)
 
 pipesArcGISUN = process.stdout.read()
