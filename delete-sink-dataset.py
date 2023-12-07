@@ -15,7 +15,7 @@ CONFIG = {
     "jwt": os.environ.get("SESAM_NODE_JWT")
 }
 
-url = f'{CONFIG["node"]}/api/datasets/'
+url = f'https://{CONFIG["node"]}/api/datasets/'
 
 payload = ""
 headers = {
@@ -36,4 +36,4 @@ for pipe in pipes:
   print("Deleting Sink Dataset for: " + pipe)  
   response = requests.request("DELETE", f'{url}{pipe}', headers=headers, data=payload)
   print(response.text)
-  time.sleep(2)
+  time.sleep(1)
