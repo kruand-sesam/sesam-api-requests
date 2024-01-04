@@ -15,7 +15,7 @@ CONFIG = {
     "jwt": os.environ.get("SESAM_NODE_JWT")
 }
 
-url = f'https://{CONFIG["node"]}/api/datasets/'
+url = f'https://{CONFIG["node"]}/api'
 
 payload = ""
 headers = {
@@ -34,6 +34,9 @@ with open(tmpFile, "r") as f:
 for pipe in pipes:
   print(f'Committing circuit breaker for: {pipe}')
   payload = {'operation': 'commit-circuit-breaker'}
-  response = requests.request("POST", f'{url}{pipe}', headers=headers, data=payload)
+  response = requests.request("POST", f'{url}/datasets/{pipe}', headers=headers, data=payload)
   print(response.text)
   time.sleep(1)
+  payload = {'operation': 'start'}
+  response = requests.request("POST", f'{url}/pipes/{pipe}/pump', headers=headers, data=payload)
+  print(f'RUN STATUS: {str(response.status_code)}')
